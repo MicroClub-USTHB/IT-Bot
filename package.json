@@ -1,0 +1,22 @@
+{
+  "name": "mc-it-bot",
+  "version": "1.0.0",
+  "description": "micro club IT bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "keywords": [],
+  "author": "y.abderrahmane",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.5.1",
+    "chalk": "^4.1.2",
+    "cheerio": "^1.0.0-rc.12",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.2"
+  }
+}
