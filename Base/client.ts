@@ -12,9 +12,11 @@ import { Command } from "../interfaces/command";
 import Logger from "../Util/logger";
 import EmbedMaker from "../Util/embed";
 import config from "../config";
+import AI from "../Util/ai";
 
 interface StartOptions {
   token: string;
+  aiToken: string;
   eventsDir: string;
   commandsDir: string;
   debug: boolean;
@@ -24,6 +26,7 @@ class Client extends DiscordClient {
   public path: string;
   public commands: Collection<string, Command> = new Collection();
   public embed: EmbedMaker = new EmbedMaker();
+  public ai: AI = new AI();
   public config: typeof config = config;
   constructor(options: ClientOptions) {
     super(options);
@@ -118,7 +121,8 @@ class Client extends DiscordClient {
       await this.registerEvents(options.eventsDir, options.debug);
       await this.registerCommands(options.commandsDir, options.debug);
       await this.login(options.token);
-      await this.sendSlashCommands(options.debug);
+      //await this.sendSlashCommands(options.debug);
+      this.ai.setApiKey(options.aiToken);
       return true;
     } catch (error) {
       console.log(error);

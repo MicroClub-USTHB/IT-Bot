@@ -1,5 +1,6 @@
 import { Command } from "../interfaces/command";
-import { SlashCommandBuilder } from "discord.js";
+import { Colors, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { Search } from "../Util/searching";
 let command: Command = {
   data: new SlashCommandBuilder()
     .setName("w3schools")
@@ -10,6 +11,31 @@ let command: Command = {
     ),
   defer: true,
   run: async (client, interaction) => {
+    let query = interaction.options.get("query")?.value as string;
+    let data = await Search.w3schools(query);
+    if (!data) {
+      await interaction.editReply(`No results found for ${query}`);
+
+      return true;
+    }
+    let embed = new EmbedBuilder()
+      .setTitle(data.title)
+      .setURL(data.url)
+      .setDescription(data.description)
+      .setColor(Colors.Green)
+      .setThumbnail(
+        "https://www.w3schools.com/images/w3schools_logo_436_2.png"
+      );
+
+    if (data.snippet)
+      embed.setDescription(
+        `${data.description}\n\n\`\`\`${data.highlight || ""}\n${
+          data.snippet
+        }\`\`\``
+      );
+
+    await interaction.editReply({ embeds: [embed] });
+
     return true;
   },
 };

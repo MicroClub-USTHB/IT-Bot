@@ -14,10 +14,10 @@ let event: Event = {
     if (!query) query = "a";
     let packagesNames = null;
 
-    if (registry == "npm") packagesNames = await Search.npmAutoComplete(query);
-    else if (registry == "pypi")
+    if (registry === "npm") packagesNames = await Search.npmAutoComplete(query);
+    else if (registry === "pypi")
       packagesNames = await Search.pypiAutoComplete(query);
-    else if (registry == "cargo")
+    else if (registry === "cargo")
       packagesNames = await Search.cargoAutoComplete(query);
 
     if (!packagesNames) return;

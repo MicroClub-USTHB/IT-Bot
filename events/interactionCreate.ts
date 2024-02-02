@@ -6,7 +6,7 @@ let event: Event = {
   async run(client, interaction: BaseInteraction) {
     if (interaction.type !== InteractionType.ApplicationCommand) return;
     if (!interaction.isChatInputCommand()) return;
-    if (!interaction.channel || interaction.channel.type == ChannelType.DM)
+    if (!interaction.channel || interaction.channel.type === ChannelType.DM)
       return;
     /*
     if (interaction.channel.parentId !== client.config.itCategoryId) {

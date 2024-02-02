@@ -1,7 +1,12 @@
 import axios from "axios";
-import PackageData from "../interfaces/searchData";
+import { PackageData, w3schoolsData } from "../interfaces/searchData";
 import { load } from "cheerio";
+
 class Search {
+  static unescapeHTML(html: string): string {
+    return load(html).text();
+  }
+
   static async npm(name: string): Promise<PackageData | null> {
     let { data } = await axios
       .get(`https://registry.npmjs.org/${name}`)
@@ -96,6 +101,95 @@ class Search {
     if (!data) return [];
     let names = data.crates.map((d: any) => d.name as string) as string[];
     return names;
+  }
+
+  static async w3schools(name: string): Promise<w3schoolsData | null> {
+    let results = await this.w3schoolsAutoComplete(name);
+    if (!results) return null;
+    let result = results[0];
+    let { data: html } = await axios.get(result.url).catch((e) => {
+      console.log(e);
+      return { data: null };
+    });
+
+    if (!html) return null;
+    let $ = load(html);
+    let code = $(".w3-code").html() ? $(".w3-code") : $("pre");
+    if (!code) return null;
+    let snippet = code.text();
+
+    let highlight =
+      $(code)
+        .attr("class")
+        ?.split(" ")
+        ?.filter((c) => /(language|high)/gi.test(c))?.[0]
+        ?.replace(/(language|high|-)/gi, "") || null;
+
+    result.snippet = snippet;
+    result.highlight = highlight;
+    return result;
+  }
+
+  static async w3schoolsAutoComplete(
+    name: string
+  ): Promise<w3schoolsData[] | null> {
+    let { data } = await axios
+      .get(`https://google.com/search?q=${name}+w3schools`)
+      .catch(() => {
+        return { data: null };
+      });
+
+    let $ = load(data);
+
+    let results = $("div[id=main] > div")
+      .filter(
+        (i, e) =>
+          $(e).text().includes("w3schools.com") && $(e).text().includes("›")
+      )
+      .map((i, e) => {
+        return {
+          title:
+            $(e)
+              .find(
+                "div > div:nth-child(1) > a > div > div:nth-child(1) > h3 > div"
+              )
+              .text() ||
+            $(e).find("a").find("span").eq(0).text() ||
+            "",
+          url: $(e)
+            .find("a")
+            .attr("href")
+            ?.replace("/url?q=", "")
+            .replace(/&sa=.*/, ""),
+          description:
+            $(e)
+              .find("div > div:nth-child(2) > div > div > div > div > div")
+              .text()
+              .replaceAll("�", "") ||
+            $(e)
+              .find("div > div:nth-child(1) > div > div > div > div")
+              .text()
+              .replaceAll("�", "") ||
+            "no description found",
+          highlight: null,
+        };
+      })
+      .toArray() as w3schoolsData[];
+
+    return results;
+  }
+
+  static async mdn(name: string): Promise<string | null> {
+    let { data } = await axios
+      .get(`https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${name}`)
+      .catch(() => {
+        return { data: null };
+      });
+    if (!data) return null;
+    let $ = load(data);
+    let description = $("meta[name=description]").attr("content");
+    if (!description) return null;
+    return description;
   }
 }
 

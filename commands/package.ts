@@ -48,9 +48,9 @@ let command: Command = {
     let registry = interaction.options.get("registry")?.value as string;
 
     let packageInfo = null;
-    if (registry == "npm") packageInfo = await Search.npm(packageName);
-    else if (registry == "pypi") packageInfo = await Search.pypi(packageName);
-    else if (registry == "cargo") packageInfo = await Search.cargo(packageName);
+    if (registry === "npm") packageInfo = await Search.npm(packageName);
+    else if (registry === "pypi") packageInfo = await Search.pypi(packageName);
+    else if (registry === "cargo") packageInfo = await Search.cargo(packageName);
 
     if (!packageInfo) {
       interaction.editReply({ content: "No package found with that name!" });
@@ -58,9 +58,9 @@ let command: Command = {
     }
     let keywords = packageInfo.keywords.map((k) => `\`${k}\``).join(", ");
     let color = null;
-    if (registry == "npm") color = Colors.Red;
-    else if (registry == "pypi") color = Colors.Blue;
-    else if (registry == "cargo") color = Colors.Yellow;
+    if (registry === "npm") color = Colors.Red;
+    else if (registry === "pypi") color = Colors.Blue;
+    else if (registry === "cargo") color = Colors.Yellow;
 
     let embed = new EmbedBuilder()
       .setThumbnail(packageInfo.icon)
