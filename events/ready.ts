@@ -9,10 +9,12 @@ let event: Event = {
       activities: [
         {
           name: "MC IT Bot",
-          type: ActivityType.Playing,
+          state: "waiting for commands!",
+          type: ActivityType.Custom,
         },
       ],
       status: "dnd",
+      afk: false,
     });
   },
 };

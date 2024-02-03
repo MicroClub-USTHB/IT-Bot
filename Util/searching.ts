@@ -116,14 +116,19 @@ class Search {
     let $ = load(html);
     let code = $(".w3-code").html() ? $(".w3-code") : $("pre");
     if (!code) return null;
-    let snippet = code.text();
+    let snippet = code.first().text() || undefined;
+    /* .toArray()
+      .map((c) => $(c).text())
+      .join("\n");*/
 
-    let highlight =
+    let highlight = result.url.split("/").at(-2)?.toLocaleLowerCase() || null;
+    if (highlight === "tag") highlight = "html";
+    /*
       $(code)
         .attr("class")
         ?.split(" ")
         ?.filter((c) => /(language|high)/gi.test(c))?.[0]
-        ?.replace(/(language|high|-)/gi, "") || null;
+        ?.replace(/(language|high|-)/gi, "") || null;*/
 
     result.snippet = snippet;
     result.highlight = highlight;
@@ -192,6 +197,5 @@ class Search {
     return description;
   }
 }
-
 export default Search;
 export { Search };

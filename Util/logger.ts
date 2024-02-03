@@ -19,6 +19,14 @@ class Logger {
       )} has been registered`
     );
   }
+
+  public static logError(error: Error): void {
+    console.log(
+      `${chalk.red.underline.bold("Error:")} ${chalk.green.bold(
+        error.name
+      )} ${chalk.red.bold(error.message)}\n${chalk.white(error.stack)}`
+    );
+  }
 }
 export default Logger;
 export { Logger };

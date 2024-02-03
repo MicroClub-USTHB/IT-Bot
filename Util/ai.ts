@@ -3,15 +3,20 @@ import {
   HarmBlockThreshold,
   HarmCategory,
   InlineDataPart,
+  ChatSession,
 } from "@google/generative-ai";
-import { Attachment } from "discord.js";
+import { Attachment, Collection } from "discord.js";
 import axios from "axios";
+import config from "../config";
 class AI {
   protected ai: GoogleGenerativeAI | null;
   protected apiKeys: string[] = [];
   protected apiCall: number = 0;
   protected apiCallLimit: number = 1000;
   protected apiKeysIndex: number = 0;
+  protected currentSession: ChatSession | null = null;
+  public sessions = new Collection<string, ChatSession>();
+
   constructor(apiKeys: string[] = []) {
     this.ai = apiKeys
       ? new GoogleGenerativeAI(apiKeys[this.apiKeysIndex])
@@ -23,6 +28,10 @@ class AI {
     this.apiKeys = apiKeys;
     this.ai = new GoogleGenerativeAI(apiKeys[this.apiKeysIndex]);
   }
+  public async setSession(session: ChatSession | null): Promise<void> {
+    this.currentSession = session;
+  }
+
   private getModel(model: string) {
     if (!this.ai) return null;
     return this.ai.getGenerativeModel({
@@ -37,9 +46,21 @@ class AI {
           threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
         },
       ],*/,
-      generationConfig: {},
+
+      generationConfig: {
+        maxOutputTokens: 3 * 100,
+      },
     });
   }
+
+  public async getSession(): Promise<ChatSession | null> {
+    let model = this.getModel("gemini-pro");
+    if (!model) return null;
+    let session = await model.startChat();
+
+    return session;
+  }
+
   public async generateText(
     text: string,
     attachment?: Attachment
@@ -58,7 +79,11 @@ class AI {
       this.apiCall = 0;
     }
 
-    if (attachment) {
+    /*let note = `respond in short paragraph (10 sentences max),also if the prompt subject is not related with IT or programming, respond with "I'm sorry, I can't help with that,I respond only to IT and programming related questions"`;
+    let note2 = `if the prompt has a question that means "who is the best programmer/devloper/coder" respond with "Of course, it is <@${config.owners[0]}>!"`;
+    text += `\n${note}\n${note2}`;*/
+
+    /*if (attachment) {
       let image = await AI.toImagePart(attachment);
       if (!image) return null;
       this.apiCall++;
@@ -70,11 +95,16 @@ class AI {
         });
 
       return response?.text() || null;
-    }
+    }*/
     this.apiCall++;
-    const { response } = await model.generateContent(text).catch((e) => {
-      return { response: null };
-    });
+
+    const { response } = this.currentSession
+      ? await this.currentSession.sendMessage(text).catch((e) => {
+          return { response: null };
+        })
+      : await model.generateContent(text).catch((e) => {
+          return { response: null };
+        });
 
     return response?.text() || null;
   }

@@ -121,7 +121,7 @@ class Client extends DiscordClient {
       await this.registerEvents(options.eventsDir, options.debug);
       await this.registerCommands(options.commandsDir, options.debug);
       await this.login(options.token);
-      //await this.sendSlashCommands(options.debug);
+      await this.sendSlashCommands(options.debug);
       this.ai.setApiKey(options.aiToken);
       return true;
     } catch (error) {

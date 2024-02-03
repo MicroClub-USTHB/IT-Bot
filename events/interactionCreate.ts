@@ -1,3 +1,4 @@
+import Logger from "../Util/logger";
 import { Event } from "../interfaces/event";
 import { BaseInteraction, ChannelType, InteractionType } from "discord.js";
 
@@ -30,8 +31,8 @@ let event: Event = {
     }
     try {
       await command.run(client, interaction);
-    } catch (error) {
-      console.log(error);
+    } catch (error:any) {
+      Logger.logError(error);
       interaction[interaction.deferred ? "editReply" : "reply"]({
         content: "There was an error while executing this command!",
       });
